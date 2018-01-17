@@ -33,7 +33,24 @@ class CountryListViewController: UIViewController {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
+	}
+	
+	override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
 		
+		do {
+			try fetchedResultsController.performFetch()
+			if fetchedResultsController.fetchedObjects!.isEmpty {
+				fechNewData()
+			}
+		} catch {
+			let fetchError = error as NSError
+			print("\(fetchError), \(fetchError.localizedDescription)")
+		}
+	}
+	
+	private func fechNewData() {
+		// check if we already have data in coredata
 		APIClient.shareInstance.fechCountryList { (result) in
 			switch result {
 			case .Success(let data):
@@ -44,16 +61,6 @@ class CountryListViewController: UIViewController {
 			case .Error(let errorMsg):
 				print(errorMsg)
 			}
-		}
-	}
-	
-	override func viewWillAppear(_ animated: Bool) {
-		super.viewWillAppear(animated)
-		do {
-			try fetchedResultsController.performFetch()
-		} catch {
-			let fetchError = error as NSError
-			print("\(fetchError), \(fetchError.localizedDescription)")
 		}
 	}
 }

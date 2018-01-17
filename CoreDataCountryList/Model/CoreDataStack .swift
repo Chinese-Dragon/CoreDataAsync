@@ -58,8 +58,11 @@ class CoreDataStack: NSObject {
 			}
 		}
 	}
+	
 	func insert(with countryDicts: [[String: Any]]) {
 		persistentContainer.performBackgroundTask { [weak self] (backgroundContext) in
+			backgroundContext.automaticallyMergesChangesFromParent = true
+			
 			guard let strongSelf = self else { return }
 			
 			print(countryDicts.count)
@@ -79,7 +82,6 @@ class CoreDataStack: NSObject {
 //				let flagIcon = UIImage(
 //				let imgData = UIImageJPEGRepresentation(diaryImage.image!, 1)
 //
-				
 				// construct single model obj and insert to private context
 				let newCountry = Country(context: backgroundContext)
 				newCountry.setValue(name, forKey: "name")
@@ -92,18 +94,12 @@ class CoreDataStack: NSObject {
 					// periodic save
 					try! backgroundContext.save()
 					backgroundContext.reset()
-					strongSelf.persistentContainer.viewContext.perform {
-						strongSelf.saveContext()
-					}
 				}
 			}
 			
 			// save the rest that is not saved while doing periodic save
 			try! backgroundContext.save()
 			backgroundContext.reset()
-			strongSelf.persistentContainer.viewContext.perform {
-				strongSelf.saveContext()
-			}
 		}
 	}
 }
